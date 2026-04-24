@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesIQ — Upload &amp; Train</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="api-base.js"></script>
+</head>
+
+<body class="app-wrap">
+
+    <aside class="sidebar">
+        <div class="sb-top">
+            <div class="brand-icon"><svg viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="10" width="4" height="8" fill="#070d1a" rx="1" />
+                    <rect x="8" y="6" width="4" height="12" fill="#070d1a" rx="1" />
+                    <rect x="14" y="2" width="4" height="16" fill="#070d1a" rx="1" />
+                </svg></div>
+            <span class="brand-name">Sales<em>IQ</em></span>
+        </div>
+        <nav class="nav-body">
+            <div class="nav-grp-lbl">Main</div>
+            <a class="nav-lnk active" href="/upload"><span class="nav-ic">📤</span>Upload &amp; Train</a>
+            <a class="nav-lnk" href="/dashboard"><span class="nav-ic">📊</span>Dashboard</a>
+            <a class="nav-lnk" href="/results"><span class="nav-ic">🎯</span>Predictions</a>
+            <a class="nav-lnk" href="/report"><span class="nav-ic">📄</span>Report</a>
+            <div class="nav-grp-lbl">Account</div>
+            <a class="nav-lnk" href="#" onclick="doLogout(event)"><span class="nav-ic">🚪</span>Logout</a>
+        </nav>
+        <div class="sb-foot">
+            <div class="av" id="avEl">?</div>
+            <div>
+                <h5 id="nameEl">—</h5>
+                <p id="emailEl">—</p>
+            </div>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <div class="tb-left">
+                <h1>Upload &amp; Train</h1>
+                <p><span>SalesIQ</span> / Upload &amp; Train</p>
+            </div>
+            <div class="tb-right"><span class="tag">scikit-learn · Linear Regression</span></div>
+        </div>
+
+        <div class="pg">
+            <div class="up-center">
+
+                <div class="info-banner">
+                    <div class="info-banner-ico">💡</div>
+                    <div>
+                        <h4>Upload 1 to 12 monthly CSV files</h4>
+                        <p>Each file = one month of sales data. More months = better predictions. Required columns:
+                            Order ID, Product, Quantity Ordered, Price Each, Order Date, Purchase Address.</p>
+                    </div>
+                </div>
+
+                <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()"
+                    ondragover="event.preventDefault();this.classList.add('over')"
+                    ondragleave="this.classList.remove('over')" ondrop="onDrop(event)">
+                    <span class="dz-ico">📂</span>
+                    <div class="dz-title">Drop your CSV files here</div>
+                    <div class="dz-sub">Upload monthly sales CSV files (up to 12).<br>The model trains across all months
+                        and predicts next month.</div>
+                    <button class="browse-btn"
+                        onclick="event.stopPropagation();document.getElementById('fi').click()">Browse Files</button>
+                    <div class="dz-note">Format: .csv &nbsp;·&nbsp; Max 12 files &nbsp;·&nbsp; 50 MB each</div>
+                </div>
+                <input type="file" id="fi" accept=".csv" multiple style="display:none" onchange="addFiles(this.files)">
+
+                <div class="file-stack" id="fileStack"></div>
+                <div class="f-counter" id="fCount" style="display:none;">
+                    <span id="fNum">0</span> / 12 files &nbsp;·&nbsp; Covers <span id="fSpan"
+                        style="color:var(--white);"></span>
+                </div>
+
+                <div class="err-msg" id="uploadErr" style="font-size:13px;margin-bottom:12px;"></div>
+
+                <button class="btn-train" id="trainBtn" onclick="startTrain()" disabled>
+                    🚀 &nbsp;Train Model &amp; Predict Next Month
+                </button>
+
+                <div class="prog-card" id="progCard">
+                    <div class="prog-head">
+                        <span class="prog-lbl" id="pLbl">Starting…</span>
+                        <span class="prog-pct" id="pPct">0%</span>
+                    </div>
+                    <div class="prog-bar">
+                        <div class="prog-fill" id="pFill"></div>
+                    </div>
+                    <div class="steps">
+                        <div class="step-row" id="s1">
+                            <div class="step-dot" id="d1">1</div>Loading and merging all CSV files
+                        </div>
+                        <div class="step-row" id="s2">
+                            <div class="step-dot" id="d2">2</div>Extracting features — product, price, time
+                        </div>
+                        <div class="step-row" id="s3">
+                            <div class="step-dot" id="d3">3</div>Training Linear Regression (scikit-learn)
+                        </div>
+                        <div class="step-row" id="s4">
+                            <div class="step-dot" id="d4">4</div>Predicting units &amp; revenue for next month
+                        </div>
+                        <div class="step-row" id="s5">
+                            <div class="step-dot" id="d5">5</div>Computing demand levels &amp; trend direction
+                        </div>
+                        <div class="step-row" id="s6">
+                            <div class="step-dot" id="d6">6</div>Generating stock recommendations
+                        </div>
+                    </div>
+                </div>
+
+                <div class="success-card" id="successCard">
+                    <div class="sc-ico">✅</div>
+                    <div class="sc-title">Model trained successfully!</div>
+                    <div class="sc-sub" id="scSub">Predictions are ready.</div>
+                    <button class="btn-goto" onclick="window.location.href=salesiqUrl('/dashboard')">View Dashboard
+                        →</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /*
+         * FIX: Store the email from the FIRST /api/me call at page load.
+         * The original code fired a second /api/me fetch inside startTrain()
+         * after training completed. If that second fetch failed (CORS, cookie
+         * timing, network blip), userEmail would be '' and the cache was written
+         * without a _salesiqUser tag — causing salesiqHydrateLatest to discard
+         * it on every subsequent page load, so dashboard/results showed no data.
+         */
+        let currentUserEmail = '';
+
+        fetch(salesiqUrl('/api/me'), { credentials: 'include' })
+            .then(r => r.json())
+            .then(d => {
+                if (!d.logged_in) { window.location.href = salesiqUrl('/login'); return; }
+                currentUserEmail = d.email || '';          // store once, reuse in startTrain
+                document.getElementById('nameEl').textContent = d.name;
+                document.getElementById('emailEl').textContent = d.email;
+                document.getElementById('avEl').textContent =
+                    (d.name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+            });
+
+        async function doLogout(e) {
+            e.preventDefault();
+            await fetch(salesiqUrl('/api/logout'), { method: 'POST', credentials: 'include' });
+            if (typeof salesiqClearResultCache === 'function') salesiqClearResultCache();
+            window.location.href = salesiqUrl('/login');
+        }
+
+        /* ── File handling ── */
+        let files = [];
+
+        function addFiles(incoming) {
+            for (const f of incoming) {
+                if (!f.name.toLowerCase().endsWith('.csv')) continue;
+                if (files.length >= 12) break;
+                if (files.find(x => x.name === f.name)) continue;
+                files.push(f);
+            }
+            renderFiles();
+        }
+
+        function onDrop(e) {
+            e.preventDefault();
+            document.getElementById('dz').classList.remove('over');
+            addFiles(e.dataTransfer.files);
+        }
+
+        function removeFile(name) {
+            files = files.filter(f => f.name !== name);
+            renderFiles();
+        }
+
+        function renderFiles() {
+            document.getElementById('fileStack').innerHTML = files.map(f => `
+        <div class="f-chip">
+            <div class="f-chip-ico">📋</div>
+            <div class="f-chip-info">
+                <h4>${f.name}</h4>
+                <p>${(f.size / 1024 / 1024).toFixed(2)} MB · CSV</p>
+            </div>
+            <button class="f-chip-rm" onclick="removeFile('${f.name}')">✕</button>
+        </div>`).join('');
+            const has = files.length > 0;
+            document.getElementById('trainBtn').disabled = !has;
+            document.getElementById('fCount').style.display = has ? 'block' : 'none';
+            document.getElementById('fNum').textContent = files.length;
+            document.getElementById('fSpan').textContent = files.length === 1 ? '1 month' : files.length + ' months';
+        }
+
+        /* ── Step animation ── */
+        const STEPS = [
+            { lbl: 'Loading and merging CSV files…', pct: 15 },
+            { lbl: 'Extracting features…', pct: 30 },
+            { lbl: 'Training Linear Regression model…', pct: 55 },
+            { lbl: 'Predicting units & revenue…', pct: 72 },
+            { lbl: 'Computing demand & trend…', pct: 88 },
+            { lbl: 'Generating recommendations…', pct: 100 },
+        ];
+
+        function animateSteps() {
+            return new Promise(resolve => {
+                let i = 0;
+                function tick() {
+                    if (i > 0) {
+                        document.getElementById('s' + i).className = 'step-row done';
+                        document.getElementById('d' + i).textContent = '✓';
+                    }
+                    if (i < STEPS.length) {
+                        const s = STEPS[i];
+                        document.getElementById('s' + (i + 1)).className = 'step-row active';
+                        document.getElementById('pLbl').textContent = s.lbl;
+                        document.getElementById('pPct').textContent = s.pct + '%';
+                        document.getElementById('pFill').style.width = s.pct + '%';
+                        i++;
+                        setTimeout(tick, 750 + Math.random() * 300);
+                    } else {
+                        resolve();
+                    }
+                }
+                tick();
+            });
+        }
+
+        /* ── Main: send files to Flask /api/predict ── */
+        async function startTrain() {
+            document.getElementById('trainBtn').disabled = true;
+            document.getElementById('uploadErr').classList.remove('show');
+            document.getElementById('uploadErr').textContent = '';
+            document.getElementById('progCard').classList.add('show');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+            const fd = new FormData();
+            for (const f of files) fd.append('files', f, f.name);
+
+            /* Run animation + API call in parallel */
+            const [, res] = await Promise.all([
+                animateSteps(),
+                fetch(salesiqUrl('/api/predict'), { method: 'POST', body: fd, credentials: 'include' })
+            ]);
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                document.getElementById('progCard').classList.remove('show');
+                document.getElementById('trainBtn').disabled = false;
+                const errEl = document.getElementById('uploadErr');
+                errEl.textContent = data.error || 'Something went wrong. Please try again.';
+                errEl.classList.add('show');
+                return;
+            }
+
+            /*
+             * FIX: Use currentUserEmail captured at page load — no second /api/me call.
+             * salesiqWriteResultCache now clones the object internally (fixed in
+             * api-base.js) so data.result is never mutated here.
+             */
+            salesiqClearResultCache();
+            salesiqWriteResultCache({
+                ...data.result,
+                run_date: data.run_date,
+                has_data: true,
+            }, currentUserEmail);
+
+            document.getElementById('progCard').classList.remove('show');
+            document.getElementById('scSub').textContent =
+                `Processed ${data.result.months.length} month(s) · ` +
+                `${data.result.totalProducts} products · ` +
+                `Predicting ${data.result.predictedMonth}`;
+            document.getElementById('successCard').classList.add('show');
+        }
+    </script>
+</body>
+
+</html>
