@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesIQ — Create Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="api-base.js"></script>
+</head>
+
+<body class="auth-wrap bg-grid">
+
+    <div class="orb orb-teal" style="width:340px;height:340px;bottom:-40px;right:5%;"></div>
+    <div class="orb orb-blue" style="width:260px;height:260px;top:8%;left:-40px;"></div>
+
+    <div class="auth-left slim f1">
+        <div class="brand">
+            <div class="brand-icon">
+                <svg viewBox="0 0 20 20" fill="none">
+                    <rect x="2" y="10" width="4" height="8" fill="#070d1a" rx="1" />
+                    <rect x="8" y="6" width="4" height="12" fill="#070d1a" rx="1" />
+                    <rect x="14" y="2" width="4" height="16" fill="#070d1a" rx="1" />
+                </svg>
+            </div>
+            <span class="brand-name">Sales<em>IQ</em></span>
+        </div>
+
+        <h2 class="hero-h f2" style="font-size:34px;margin-bottom:10px;">Start predicting<br><em>smarter sales.</em>
+        </h2>
+
+        <div class="feat-list f4">
+            <div class="feat-row">
+                <div class="feat-ico">📊</div>
+                <div class="feat-txt">
+                    <h4>Sales &amp; Revenue Prediction</h4>
+                    <p>Predict next month's units and revenue per product using linear regression.</p>
+                </div>
+            </div>
+            <div class="feat-row">
+                <div class="feat-ico">📈</div>
+                <div class="feat-txt">
+                    <h4>Trend Detection</h4>
+                    <p>Detect rising, stable and falling trends across all products automatically.</p>
+                </div>
+            </div>
+            <div class="feat-row">
+                <div class="feat-ico">🎯</div>
+                <div class="feat-txt">
+                    <h4>Demand Analysis</h4>
+                    <p>Classify each product's demand as High, Medium or Low.</p>
+                </div>
+            </div>
+            <div class="feat-row">
+                <div class="feat-ico">💡</div>
+                <div class="feat-txt">
+                    <h4>Smart Recommendations</h4>
+                    <p>Get clear stock recommendations — increase, hold or reduce — per product.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-right wide">
+        <div class="fcard wide f2">
+            <h2 class="fcard-title">Create your account</h2>
+            <p class="fcard-sub">Already have one? <a href="/login">Sign in</a></p>
+
+            <div class="fg2">
+                <div class="fg">
+                    <label class="lbl">First name</label>
+                    <input class="inp" id="firstName" type="text" placeholder="First Name">
+                    <div class="err-msg" id="fnErr">Required.</div>
+                </div>
+                <div class="fg">
+                    <label class="lbl">Last name</label>
+                    <input class="inp" id="lastName" type="text" placeholder="Last Name">
+                    <div class="err-msg" id="lnErr">Required.</div>
+                </div>
+            </div>
+
+            <div class="fg">
+                <label class="lbl">Email address</label>
+                <input class="inp" id="regEmail" type="email" placeholder="you@gmail.com">
+                <div class="err-msg" id="regEmailErr">Please enter a valid email.</div>
+            </div>
+
+            <div class="fg">
+                <label class="lbl">Password</label>
+                <input class="inp" id="regPw" type="password" placeholder="Min. 8 characters"
+                    oninput="checkStrength(this.value)">
+                <div class="pw-bars mt8">
+                    <div class="pw-bar" id="b1"></div>
+                    <div class="pw-bar" id="b2"></div>
+                    <div class="pw-bar" id="b3"></div>
+                    <div class="pw-bar" id="b4"></div>
+                </div>
+                <div class="pw-hint" id="pwHint"></div>
+                <div class="err-msg" id="regPwErr">Password must be at least 8 characters.</div>
+            </div>
+
+            <div class="fg">
+                <label class="lbl">Confirm password</label>
+                <input class="inp" id="regPwConfirm" type="password" placeholder="Re-enter password">
+                <div class="err-msg" id="confirmErr">Passwords do not match.</div>
+            </div>
+
+            <div class="err-msg" id="serverErr" style="margin-bottom:12px;font-size:13px;"></div>
+
+            <button class="btn-main" id="signupBtn" onclick="handleSignup()">Create account</button>
+        </div>
+    </div>
+
+    <script>
+        function checkStrength(v) {
+            const bars = [1, 2, 3, 4].map(i => document.getElementById('b' + i));
+            const hint = document.getElementById('pwHint');
+            let score = 0;
+            if (v.length >= 8) score++;
+            if (/[A-Z]/.test(v)) score++;
+            if (/[0-9]/.test(v)) score++;
+            if (/[^A-Za-z0-9]/.test(v)) score++;
+            const cls = score <= 1 ? 'weak' : score <= 2 ? 'fair' : 'strong';
+            const label = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+            const color = { weak: '#ff5e7a', fair: '#f9a825', strong: '#00d4b4' };
+            bars.forEach((b, i) => { b.className = 'pw-bar'; if (i < score) b.classList.add(cls); });
+            hint.textContent = v.length > 0 ? (label[score] || 'Strong') : '';
+            hint.style.color = color[cls] || '#00d4b4';
+        }
+
+        async function handleSignup() {
+            const fn = document.getElementById('firstName').value.trim();
+            const ln = document.getElementById('lastName').value.trim();
+            const em = document.getElementById('regEmail').value.trim();
+            const pw = document.getElementById('regPw').value;
+            const pwc = document.getElementById('regPwConfirm').value;
+
+            ['fnErr', 'lnErr', 'regEmailErr', 'regPwErr', 'confirmErr', 'serverErr'].forEach(id =>
+                document.getElementById(id).classList.remove('show'));
+            ['firstName', 'lastName', 'regEmail', 'regPw', 'regPwConfirm'].forEach(id =>
+                document.getElementById(id).classList.remove('err'));
+
+            let ok = true;
+            if (!fn) { show('fnErr'); mark('firstName'); ok = false; }
+            if (!ln) { show('lnErr'); mark('lastName'); ok = false; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { show('regEmailErr'); mark('regEmail'); ok = false; }
+            if (pw.length < 8) { show('regPwErr'); mark('regPw'); ok = false; }
+            if (pw !== pwc) { show('confirmErr'); mark('regPwConfirm'); ok = false; }
+            if (!ok) return;
+
+            const btn = document.getElementById('signupBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating account…';
+
+            try {
+                const res = await fetch(salesiqUrl('/api/signup'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ first_name: fn, last_name: ln, email: em, password: pw })
+                });
+                const text = await res.text();
+                let data = {};
+                try {
+                    data = text ? JSON.parse(text) : {};
+                } catch (parseErr) {
+                    const el = document.getElementById('serverErr');
+                    el.textContent = 'Invalid server response. Run python app.py and open http://127.0.0.1:5000';
+                    el.classList.add('show');
+                    btn.disabled = false;
+                    btn.textContent = 'Create account';
+                    return;
+                }
+
+                if (res.ok && data.success) {
+                    if (typeof salesiqClearResultCache === 'function') salesiqClearResultCache();
+                    window.location.href = salesiqUrl('/upload');
+                } else {
+                    const el = document.getElementById('serverErr');
+                    el.textContent = data.error || 'Sign up failed. Please try again.';
+                    el.classList.add('show');
+                    btn.disabled = false;
+                    btn.textContent = 'Create account';
+                }
+            } catch (netErr) {
+                const el = document.getElementById('serverErr');
+                el.textContent = 'Cannot reach the server. Run python app.py then open http://127.0.0.1:5000/signup';
+                el.classList.add('show');
+                btn.disabled = false;
+                btn.textContent = 'Create account';
+            }
+        }
+
+        function show(id) { document.getElementById(id).classList.add('show'); }
+        function mark(id) { document.getElementById(id).classList.add('err'); }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('regPwConfirm').addEventListener('keydown', e => {
+                if (e.key === 'Enter') handleSignup();
+            });
+        });
+    </script>
+</body>
+
+</html>
