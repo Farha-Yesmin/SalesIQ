@@ -35,6 +35,7 @@ import os
 import secrets
 import sqlite3
 from typing import Any, Optional, Union
+from zoneinfo import ZoneInfo
 
 # ── Third-party ──────────────────────────────────────────────
 import numpy as np
@@ -71,6 +72,7 @@ MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December",
 ]
+APP_TIMEZONE = ZoneInfo("Asia/Dhaka")
 
 # ================================================================
 #  Database
@@ -138,7 +140,7 @@ def hash_pw(pw: str) -> str:
 
 
 def now_str() -> str:
-    return datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    return datetime.datetime.now(APP_TIMEZONE).strftime("%Y-%m-%d %H:%M:%S")
 
 
 def get_uid() -> Optional[int]:
